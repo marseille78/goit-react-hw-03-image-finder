@@ -32,7 +32,7 @@ class Searchbar extends Component {
       <header className={ css.searchbar }>
         <form className={ css.searchForm } onSubmit={ this.handleSubmit }>
           <button type="submit" className={ css.searchFormButton }>
-            <span className={ css.searchFormButtonLabel }>Search</span>
+            <i className="fa-sharp fa-solid fa-magnifying-glass" />
           </button>
 
           <input
