@@ -30,17 +30,32 @@ class App extends Component {
 
     const { activePage } = this.state;
 
-    if (prevCategory !== nextCategory || prevPage !== nextPage) {
+    if (prevCategory !== nextCategory) {
       this.setState({ status: PENDING });
 
       try {
-        const { hits, totalHits } = await apiService.getResource(nextCategory, activePage);
+        const { hits, totalHits } = await apiService.getResource(nextCategory, 1);
+
+        this.setState({
+          response: hits,
+          activePage: 1,
+          status: RESOLVED,
+          error: null,
+          totalHits,
+        });
+      } catch (error) {
+        this.setState({ error });
+      }
+    }
+
+    if (prevPage !== nextPage && nextPage !== 1) {
+      try {
+        const { hits } = await apiService.getResource(nextCategory, activePage);
 
         this.setState(state => ({
           response: [...state.response, ...hits],
           status: RESOLVED,
           error: null,
-          totalHits,
         }));
       } catch (error) {
         this.setState({ error });
@@ -49,11 +64,7 @@ class App extends Component {
   }
 
   handleChangeCategory = (category) => {
-    this.setState({
-      category,
-      activePage: 1,
-      response: [],
-    });
+    this.setState({ category });
   }
 
   handleLoadMore = () => {
@@ -63,6 +74,7 @@ class App extends Component {
   }
 
   render() {
+
     const { status, response, totalHits, error } = this.state;
 
     const imageGalleryIdleView = () => (
@@ -83,8 +95,8 @@ class App extends Component {
 
         { status === IDLE && imageGalleryIdleView() }
         { status === PENDING && <Loader /> }
+        { status === RESOLVED && <ImageGallery dataList={ response } /> }
         { status === REJECTED && imageGalleryErrorView(error.message) }
-        <ImageGallery dataList={ response } />
 
         {
           (status === RESOLVED && response.length !== totalHits && response.length !== 0) &&

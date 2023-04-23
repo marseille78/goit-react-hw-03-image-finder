@@ -5,19 +5,19 @@ class ApiService {
   BASE_URL = 'https://pixabay.com/api/';
   OPTS = `image_type=photo&orientation=horizontal&per_page=${ STEP }`;
 
-  async getResource(req, page) {
+  getResource(req, page) {
     const url = `${ this.BASE_URL }?key=${ API_KEY }&q=${ req }&${ this.OPTS }&page=${ page }`;
 
-    const res = await fetch(url).then(res => {
-      if (!res.ok) {
-        return Promise.reject(new Error(`There are not images in category ${req}`));
-      }
-
-      return res.json();
-    });
-
-    const { totalHits, hits } = res;
-    return { totalHits, hits: this.transformResponse(hits) };
+    return fetch(url).then(res => {
+        if (!res.ok) {
+          return Promise.reject(new Error(`There are not images in category ${req}`));
+        }
+        return res.json();
+      })
+      .then(data => {
+        const { totalHits, hits } = data;
+        return { totalHits, hits: this.transformResponse(hits) };
+      });
   }
 
   transformResponse(res) {
